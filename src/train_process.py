@@ -6,7 +6,7 @@ from torch.autograd.grad_mode import no_grad
 from torch.utils.data import DataLoader
 
 sys.path.append(os.path.abspath(__package__))
-from config import DL_Config
+from config import DL_Config, get_device
 from submodules.ML_Tools.ModelPerform import ModelPerform
 from submodules.FileTools.WordOperator import str_format
 
@@ -64,11 +64,11 @@ class DL_Performance(object):
 
 
 class DL_Model(DL_Config):
-    def __init__(self, device: str = 'cuda:0') -> None:
+    def __init__(self, device: str = get_device(), **kwargs) -> None:
         try:  # form pre-train model
             self.performance = self.performance
         except AttributeError:  # new model
-            super().__init__()
+            super().__init__(**kwargs)
             self.performance = DL_Performance()
 
         self.device = device
@@ -94,20 +94,22 @@ class DL_Model(DL_Config):
             self.net.train()
             for data, label in loader:
                 data = data.to(self.device)
-                label = label.cpu()
+                label = label.to(self.device)
                 self.optimizer.zero_grad()
-                pred = self.net(data).cpu()
+                pred = self.net(data)
                 loss = self.loss_func(pred, label)
                 loss.backward()
                 self.optimizer.step()
-                self.lr_scheduler.step()
+                if self.lr_scheduler != None:
+                    self.lr_scheduler.step()
 
                 # calculate acc & loss
                 sum_loss += loss.item()
 
                 if self.isClassified:
-                    preds_result = torch.argmax(pred, dim=1).numpy()
-                    num_right += sum(preds_result == label.numpy())
+                    preds_result = torch.argmax(pred, dim=1).cpu()
+
+                    num_right += sum(preds_result == label.cpu()).numpy()
                     # num_right += torch.mean((preds_result == label).float()).item()
 
             self.train_loss = sum_loss / len(loader.dataset)
@@ -136,6 +138,7 @@ class DL_Model(DL_Config):
             if self.earlyStop is not None:
                 if self.earlyStop == self.epoch - max(self.performance.best_acc_epoch, self.performance.best_loss_epoch):
                     self.TOTAL_EPOCH = self.epoch + 1
+                    print(str_format("Early Stop active!!", fore='y', style='blink'))
 
             # when early stop or outside control happen
             if self.TOTAL_EPOCH == self.epoch + 1:
@@ -158,18 +161,18 @@ class DL_Model(DL_Config):
         with no_grad():
             for data, label in loader:
                 data = data.to(self.device)
-                label = label.cpu()
+                label = label.to(self.device)
 
                 # validating process
-                pred = self.net(data).cpu()
+                pred = self.net(data)
                 loss = self.loss_func(pred, label)
 
                 # calculate loss
                 sum_loss += loss.item()
 
                 if self.isClassified:
-                    pred_label = torch.argmax(pred, dim=1).numpy()
-                    num_right += sum(pred_label == label.numpy())
+                    pred_label = torch.argmax(pred, dim=1).cpu()
+                    num_right += sum(pred_label == label.cpu()).numpy()
                     # num_right += torch.mean((pred_label == label).float()).item()
 
             # valiation info. record
@@ -251,7 +254,8 @@ class DL_Model(DL_Config):
             lr_scheduler = self.lr_scheduler
             self.net = self.net.state_dict()
             self.optimizer = self.optimizer.state_dict()
-            self.lr_scheduler = self.lr_scheduler.state_dict()
+            if self.lr_scheduler != None:
+                self.lr_scheduler = self.lr_scheduler.state_dict()
             torch.save(self, path)
             self.net = net
             self.optimizer = optimizer
@@ -275,7 +279,8 @@ class DL_Model(DL_Config):
         else:
             self.net.load_state_dict(model.net)
             self.optimizer.load_state_dict(model.optimizer)
-            self.lr_scheduler.load_state_dict(model.lr_scheduler)
+            if self.lr_scheduler != None:
+                self.lr_scheduler.load_state_dict(model.lr_scheduler)
         self.net.eval()
 
 
