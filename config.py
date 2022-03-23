@@ -25,9 +25,18 @@ class DL_Config(object):
         self.performance_config(**performance_config)
         self.save_config(**save_config)
 
+        self.extraHyperConfig = {
+            **kwargs,
+            'basic_confg': basic_confg,
+            'net_config': net_config,
+            'performance_config': performance_config,
+            'save_config': save_config,
+        }
+        print(self.extraHyperConfig)
+
     def basic_config(
         self,
-        SEED: int = 24,
+        SEED: int = 42,
         NUM_EPOCH: int = 500,
         WARMUP_EPOCH: int = 10,
         BATCH_SIZE: int = 512,
@@ -67,8 +76,12 @@ class DL_Config(object):
         else:
             self.net = self.net(net_parameter, **kwargs['strcture']).to(get_device())
             self.optimizer = self.optimizer(self.net.parameters(), lr=self.learning_rate)
-            # self.lr_scheduler = lr_scheduler if lr_scheduler is not False else get_cosine_schedule_with_warmup(self.optimizer, self.WARMUP_EPOCH, self.NUM_EPOCH)
-            self.lr_scheduler = lr_scheduler if lr_scheduler is not False else None
+            self.lr_scheduler = (
+                lr_scheduler
+                if lr_scheduler is not False
+                else get_cosine_schedule_with_warmup(self.optimizer, self.WARMUP_EPOCH, self.NUM_EPOCH)
+            )
+            # self.lr_scheduler = lr_scheedrduler if lr_scheduler is not False else None
 
     def performance_config(
         self,
