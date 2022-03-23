@@ -58,7 +58,7 @@ class DL_Config(object):
 
     def net_config(
         self,
-        net_parameter: int = None,
+        input_dim: int = None,
         network: nn.Module = net.Classifier,
         loss_func: nn = nn.CrossEntropyLoss(),
         optimizer: torch.optim = torch.optim.AdamW,
@@ -69,12 +69,12 @@ class DL_Config(object):
         self.isClassified = True
         self.loss_func = loss_func
 
-        if net_parameter is None:
+        if input_dim is None:
             self.net = network
             self.optimizer = optimizer
             self.learning_rate = learning_rate
         else:
-            self.net = self.net(net_parameter, **kwargs['strcture']).to(get_device())
+            self.net = self.net(input_dim, **kwargs['strcture']).to(get_device())
             self.optimizer = self.optimizer(self.net.parameters(), lr=self.learning_rate)
             self.lr_scheduler = (
                 lr_scheduler
