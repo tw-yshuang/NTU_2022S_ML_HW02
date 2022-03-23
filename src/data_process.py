@@ -27,9 +27,20 @@ class LibriDataset(Dataset):
 def get_dataloader(data_dir: str = './Data/libriphone', mode: str = 'train', batch_size=32, n_workers=1, **kwargs):
     concat_nframes = 5
 
+    if mode == 'test':
+        data = preprocess_data(split=mode, feat_dir=f'{data_dir}/feat', phone_path=data_dir, concat_nframes=concat_nframes)
+        dataset = LibriDataset(data)
+        loader = DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            # collate_fn=collate_batch,
+        )
+        return loader, 39 * concat_nframes
+
     """Generate dataloader"""
     data, labels = preprocess_data(
-        split='train', feat_dir=f'{data_dir}/feat', phone_path=data_dir, concat_nframes=concat_nframes, train_ratio=1
+        split=mode, feat_dir=f'{data_dir}/feat', phone_path=data_dir, concat_nframes=concat_nframes, train_ratio=1
     )
 
     dataset = LibriDataset(data, labels)
