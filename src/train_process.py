@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(__package__))
 from config import DL_Config, get_device
 from submodules.ML_Tools.ModelPerform import ModelPerform
 from submodules.FileTools.WordOperator import str_format
+from submodules.FileTools.PickleOperator import save_pickle, load_pickle
 
 
 class DL_Performance(object):
@@ -191,8 +192,8 @@ class DL_Model(DL_Config):
         self.net.eval()
         result_ls = np.array([])
         with no_grad():
-            for dataset in loader:
-                data = dataset.to(self.device)
+            for data in loader:
+                data = data.to(self.device)
 
                 results = self.net(data).cpu()
                 if self.isClassified:
@@ -229,6 +230,7 @@ class DL_Model(DL_Config):
     def save_process(self):
         if self.updateSaveDir is False:
             self.create_saveDir()
+            save_pickle(self.extraHyperConfig, path=f'{self.saveDir}/extraHyperConfig.pickle')
 
         # make a parameter mark for model name, if has val_loader in the epoch, use val_loss, else use train_loss
         model_parameter_mark = self.val_loss if self.val_loss != 0.0 else self.train_loss
