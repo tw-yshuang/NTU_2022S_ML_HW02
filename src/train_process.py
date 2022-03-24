@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(__package__))
 from config import DL_Config, get_device
 from submodules.ML_Tools.ModelPerform import ModelPerform
 from submodules.FileTools.WordOperator import str_format
-from submodules.FileTools.PickleOperator import save_pickle, load_pickle
+from submodules.FileTools.PickleOperator import save_pickle
 
 
 class DL_Performance(object):
