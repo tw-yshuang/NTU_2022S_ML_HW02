@@ -232,7 +232,7 @@ class DL_Model(DL_Config):
             self.create_saveDir()
             save_pickle(self.extraHyperConfig, path=f'{self.saveDir}/extraHyperConfig.pickle')
             with open(f'{self.saveDir}/extraHyperConfig.json', "w") as fp:
-                json.dump(aa, fp, sort_keys=True, indent=4, default=lambda obj: str(obj))
+                json.dump(self.extraHyperConfig, fp, sort_keys=True, indent=4, default=lambda obj: str(obj))
 
         # make a parameter mark for model name, if has val_loader in the epoch, use val_loss, else use train_loss
         model_parameter_mark = self.val_loss if self.val_loss != 0.0 else self.train_loss

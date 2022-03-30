@@ -24,9 +24,7 @@ class LibriDataset(Dataset):
         return len(self.data)
 
 
-def get_dataloader(data_dir: str = './Data/libriphone', mode: str = 'train', batch_size=32, n_workers=1, **kwargs):
-    concat_nframes = 5
-
+def get_dataloader(data_dir: str = './Data/libriphone', mode: str = 'train', batch_size=32, n_workers=1, concat_nframes=5, **kwargs):
     if mode == 'test':
         data = preprocess_data(split=mode, feat_dir=f'{data_dir}/feat', phone_path=data_dir, concat_nframes=concat_nframes)
         dataset = LibriDataset(data)
