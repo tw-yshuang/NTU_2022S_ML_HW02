@@ -68,16 +68,15 @@ class Down(nn.Module):
 
         self.hidden_layers = hidden_layers
 
-        self.nets = []
+        self.nets = nn.ModuleList()
         for i in range(self.hidden_layers):
-            self.nets.append(
-                nn.Sequential(Hidden(max_hidden_dim // (2**i), max_hidden_dim // (2 ** (i + 1)))).to(get_device()),
-            )
+            self.nets.append(Hidden(max_hidden_dim // (2**i), max_hidden_dim // (2 ** (i + 1))))
+        # self.nets.append([Hidden(max_hidden_dim // (2**i), max_hidden_dim // (2 ** (i + 1))) for i in range(self.hidden_layers)])
 
     def forward(self, x):
         features = []
-        for i in range(self.hidden_layers):
-            x = self.nets[i](x)
+        for net in self.nets:
+            x = net(x)
             features.append(x)
         return features
 
@@ -88,18 +87,16 @@ class Up(nn.Module):
 
         self.hidden_layers = hidden_layers
 
-        self.nets = []
+        self.nets = nn.ModuleList()
+        # self.nets.append(
+        #     [Hidden(max_hidden_dim // (2**i), max_hidden_dim // (2 ** (i - 1))) for i in range(self.hidden_layers, 0, -1)]
+        # )
         for i in range(self.hidden_layers, 0, -1):
-            self.nets.append(
-                nn.Sequential(Hidden(max_hidden_dim // (2**i), max_hidden_dim // (2 ** (i - 1)))).to(get_device()),
-            )
+            self.nets.append(Hidden(max_hidden_dim // (2**i), max_hidden_dim // (2 ** (i - 1))))
 
-    def forward(self, features):
-        for i in range(self.hidden_layers):
-            if i == 0:
-                x = self.nets[i](features[self.hidden_layers - 1])
-                continue
-            x = self.nets[i](x + features[self.hidden_layers - i - 1])
+    def forward(self, features: list):
+        for net, feature in zip(self.nets, features[::-1]):
+            x = net(x + feature) if 'x' in locals() else net(feature)
         return x
 
 
@@ -124,3 +121,8 @@ class ClassResidual(nn.Module):
         x = self.down(x)
         x = self.up(x)
         return self.final(x)
+
+
+if __name__ == '__main__':
+    aa = ClassResidual(50, hidden_layers=8, max_hidden_dim=4096)
+    print(aa)
