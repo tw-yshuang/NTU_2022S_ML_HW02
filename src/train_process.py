@@ -58,10 +58,10 @@ class DL_Performance(object):
         )
         if showPlot or savePlot:
             self.visualize.draw_plot(startNumEpoch=len(self.train_loss_ls) // 5, isShow=showPlot, isSave=savePlot)
-            print(str_format("Compelete generate plot !!", fore='g'))
+            print(str_format("Complete generate plot !!", fore='g'))
         if saveCSV:
             self.visualize.save_history_csv()
-            print(str_format("Compelete generate csv !!", fore='g'))
+            print(str_format("Complete generate csv !!", fore='g'))
 
 
 class DL_Model(DL_Config):
@@ -108,10 +108,10 @@ class DL_Model(DL_Config):
                 sum_loss += loss.item()
 
                 if self.isClassified:
-                    preds_result = torch.argmax(pred, dim=1).cpu()
+                    pred_result = torch.argmax(pred, dim=1).cpu()
 
-                    num_right += sum(preds_result == label.cpu()).numpy()
-                    # num_right += torch.mean((preds_result == label).float()).item()
+                    num_right += sum(pred_result == label.cpu()).numpy()
+                    # num_right += torch.mean((pred_result == label).float()).item()
 
             self.train_loss = sum_loss / len(loader.dataset)
             self.performance.train_loss_ls.append(self.train_loss)
@@ -176,7 +176,7 @@ class DL_Model(DL_Config):
                     num_right += sum(pred_label == label.cpu()).numpy()
                     # num_right += torch.mean((pred_label == label).float()).item()
 
-            # valiation info. record
+            # validation info. record
             self.val_loss = sum_loss / len(loader.dataset)
             self.performance.val_loss_ls.append(self.val_loss)
             if self.performance.val_loss_ls[self.performance.best_loss_epoch] > self.val_loss:
