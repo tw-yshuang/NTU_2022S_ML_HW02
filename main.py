@@ -102,7 +102,7 @@ def full_pre_train(
 
 
 def test(model_path: str, model: DL_Model = None, loader: List[DataLoader] = None, **kwargs):
-    # load orignal extraHyperConfig file that locate under the same folder with the model
+    # load original extraHyperConfig file that locate under the same folder with the model
     try:
         extraHyperConfig: dict = load_pickle(f'{model_path[: model_path.rfind("/") + 1]}/extraHyperConfig.pickle')
         extraHyperConfig.update(**kwargs)
@@ -134,24 +134,25 @@ if __name__ == '__main__':
     extraHyperConfig = {
         'loader_config': {
             'data_dir': './Data/libriphone',
-            'n_workers': 4,
+            'n_workers': 8,
+            'concat_nframes': 21,
         },
-        # 'basic_confg': {},
+        # 'basic_config': {},
         'net_config': {
-            'network': net.Classifier,
-            'strcture': {
-                'hidden_layers': 3,
-                'max_hidden_dim': 512,
+            'network': net.ClassResidual,
+            'structure': {
+                'hidden_layers': 8,
+                'max_hidden_dim': 2048,
             },
             'optimizer': torch.optim.AdamW,
             'learning_rate': 1e-4,
-            'lr_scheduler': None,
+            # 'lr_scheduler': None,
         },
         # 'performance_config': {},
         # 'save_config': {},
     }
 
-    model = DL_Model(**extraHyperConfig)
+    # model = DL_Model(**extraHyperConfig)
 
     # train(model=model, **extraHyperConfig)
 
@@ -164,6 +165,6 @@ if __name__ == '__main__':
     # full_pre_train(**extraHyperConfig)
 
     test(
-        model_path='out/0323-1755_Classifier_CrossEntropyLoss_AdamW-1.0e-04_BS-512/best-acc_e483_1.778e-03.pickle',
+        model_path='out/0409-1657_ClassResidual_CrossEntropyLoss_AdamW-1.0e-04_BS-512/best-loss_e179_6.820e-04.pickle',
         # **extraHyperConfig,
     )

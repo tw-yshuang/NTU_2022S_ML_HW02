@@ -14,20 +14,20 @@ def get_device():
 class DL_Config(object):
     def __init__(
         self,
-        basic_confg: dict = {},
+        basic_config: dict = {},
         net_config: dict = {},
         performance_config: dict = {},
         save_config: dict = {},
         **kwargs,
     ) -> None:
-        self.basic_config(**basic_confg)
+        self.basic_config(**basic_config)
         self.net_config(**net_config)
         self.performance_config(**performance_config)
         self.save_config(**save_config)
 
         self.extraHyperConfig = {
             **kwargs,
-            'basic_confg': basic_confg,
+            'basic_config': basic_config,
             'net_config': net_config,
             'performance_config': performance_config,
             'save_config': save_config,
@@ -74,14 +74,14 @@ class DL_Config(object):
             self.optimizer = optimizer
             self.learning_rate = learning_rate
         else:
-            self.net = self.net(input_dim, **kwargs['strcture']).to(get_device())
+            self.net = self.net(input_dim, **kwargs['structure']).to(get_device())
             self.optimizer = self.optimizer(self.net.parameters(), lr=self.learning_rate)
             self.lr_scheduler = (
                 lr_scheduler
                 if lr_scheduler is not False
                 else get_cosine_schedule_with_warmup(self.optimizer, self.WARMUP_EPOCH, self.NUM_EPOCH)
             )
-            # self.lr_scheduler = lr_scheedrduler if lr_scheduler is not False else None
+            # self.lr_scheduler = lr_scheduler if lr_scheduler is not False else None
 
     def performance_config(
         self,
